@@ -1,3 +1,4 @@
+import traceback
 from rest_framework import viewsets, status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -17,6 +18,21 @@ def health_check(request):
 class ClimateDataViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = ClimateData.objects.all()
     serializer_class = ClimateDataSerializer
+
+    def list(self, request, *args, **kwargs):
+        try:
+            return super().list(request, *args, **kwargs)
+        except Exception as e:
+            print("===== CLIMATE API ERROR =====")
+            print(f"Error type: {type(e).__name__}")
+            print(f"Error message: {str(e)}")
+            traceback.print_exc()
+            print("===== END CLIMATE API ERROR =====")
+
+            return Response(
+                {"error": "Climate API failed. Check server logs."},
+                status=500
+            )
 
 class MaterialViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Material.objects.all()
